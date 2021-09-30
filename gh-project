@@ -69,12 +69,10 @@ list() {
 edit() {
   local -r cmd="${1}"
   local -r number="${2}"
-  local project="${3}"
-  local -r flags="${*:4}"
+  local -r flags="${*:3}"
 
-  if [[ -z "${project}" ]]; then
-    project="$(list "${flags[@]}" | fzf)"
-  fi
+  local project
+  project="$(list "${flags[@]}" | fzf)"
 
   local op
   case $cmd in

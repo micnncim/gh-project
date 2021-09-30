@@ -1,6 +1,6 @@
 # `gh project` GitHub CLI extension
 
-[GitHub CLI](https://github.com/cli/cli) extension for listing projects, editing projects interactively.
+`gh project` is a [GitHub CLI](https://github.com/cli/cli) extension for listing projects and linking/unlinking projects from issues/PRs interactively.
 
 ## Installation
 
@@ -21,15 +21,14 @@ $ # Lists all projects in a current repository.
 $ gh project list
 $ # Lists all projects in a given organization.
 $ gh project list --org=acme-org
-# # Links a project in a current repository to issue or PR #123 interactively.
+# # Links a project in a current repository to the issue or PR #123 interactively.
 $ gh project add 123
-# # Links a project in a given organization to issue or PR #123 interactively.
+# # Links a project in a given organization to the issue or PR #123 interactively.
 $ gh project add 123 --org=acme-org
-# # Unlinks a project  a current repository to issue or PR #123 interactively.
+# # Unlinks a project  a current repository from the issue or PR #123 interactively.
 $ gh project remove 123
-# # Unlinks a project in a given organization to issue or PR #123 interactively.
+# # Unlinks a project in a given organization from the issue or PR #123 interactively.
 $ gh project remove 123 --org=acme-org
-
 ```
 
 ## Environment Variables

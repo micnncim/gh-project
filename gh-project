@@ -1,0 +1,129 @@
+#!/bin/bash
+
+set -e
+
+readonly GH_PROJECT_ORGANIZATION
+
+readonly EXECUTABLES=(fzf)
+
+usage() {
+  cat <<EOF
+Works with GitHub Projects from the command line.
+
+Example:
+
+  $ gh project list
+  $ gh project list --org=acme-org
+  $ gh project add 123
+  $ gh project add 123 --org=acme-org
+  $ gh project remove 123
+  $ gh project remove 123 --org=acme-org
+
+Environment Variables:
+
+  GH_PROJECT_ORGANIZATION (optional)
+
+Dependencies: ${EXECUTABLES[@]}
+
+EOF
+}
+
+info() {
+  echo "✓ $*" >&2
+}
+
+# Determine if executables are in the PATH.
+check_executables() {
+  for e in "${EXECUTABLES[@]}"; do
+    if ! type -p "${e}" >/dev/null; then
+      echo "${e} not found on the system" >&2
+      return 1
+    fi
+  done
+}
+
+list() {
+  local org
+  while [[ "$#" -gt 0 ]]; do
+    case "$1" in
+      --org=*)
+        org=${1#*=}
+        ;;
+      *) ;;
+    esac
+    shift
+  done
+
+  if [[ -n "${GH_PROJECT_ORGANIZATION}" ]]; then
+    org="${GH_PROJECT_ORGANIZATION}"
+  fi
+
+  local endpoint="repos/:owner/:repo/projects"
+  if [[ -n "${org}" ]]; then
+    endpoint="orgs/${org}/projects"
+  fi
+
+  PAGER='cat' gh api "${endpoint}" --paginate --template '{{- range .}}{{ .name | printf "%s\n" }}{{- end -}}'
+}
+
+edit() {
+  local -r cmd="${1}"
+  local -r number="${2}"
+  local project="${3}"
+  local -r flags="${*:4}"
+
+  if [[ -z "${project}" ]]; then
+    project="$(list "${flags[@]}" | fzf)"
+  fi
+
+  local op
+  case $cmd in
+    'add')
+      op='link'
+      ;;
+    'remove')
+      op='unlink'
+      ;;
+  esac
+
+  if gh issue view "${number}" >/dev/null 2>&1; then
+    gh issue edit "${number}" "--${cmd}-project" "${project}" >/dev/null
+    info "Project '${project}' has been ${op}ed to issue #$number"
+    return
+  fi
+
+  if gh pr view "${number}" >/dev/null 2>&1; then
+    gh pr edit "${number}" "--${cmd}-project" "${project}" >/dev/null
+    info "Project '${project}' has been ${op}ed to pull request #$number"
+    return
+  fi
+}
+
+main() {
+  if [[ "$#" -lt 1 ]]; then
+    usage
+    return 1
+  fi
+
+  if ! check_executables; then
+    usage
+    return 1
+  fi
+
+  local -r cmd="${1}"
+
+  case $cmd in
+    'list')
+      list "${@:2}"
+      ;;
+    'add' | 'remove')
+      edit "${cmd}" "${@:2}"
+      ;;
+    *)
+      usage
+      return 1
+      ;;
+  esac
+}
+
+main "$@"

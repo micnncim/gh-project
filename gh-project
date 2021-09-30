@@ -74,25 +74,27 @@ edit() {
   local project
   project="$(list "${flags[@]}" | fzf)"
 
-  local op
+  local op preposition
   case $cmd in
     'add')
       op='link'
+      preposition='to'
       ;;
     'remove')
       op='unlink'
+      preposition='from'
       ;;
   esac
 
   if gh issue view "${number}" >/dev/null 2>&1; then
     gh issue edit "${number}" "--${cmd}-project" "${project}" >/dev/null
-    info "Project '${project}' has been ${op}ed to issue #$number"
+    info "Project '${project}' has been ${op}ed ${preposition} issue #$number"
     return
   fi
 
   if gh pr view "${number}" >/dev/null 2>&1; then
     gh pr edit "${number}" "--${cmd}-project" "${project}" >/dev/null
-    info "Project '${project}' has been ${op}ed to pull request #$number"
+    info "Project '${project}' has been ${op}ed ${preposition} pull request #$number"
     return
   fi
 }

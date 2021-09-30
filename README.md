@@ -1,6 +1,6 @@
 # `gh project` GitHub CLI extension
 
-`gh project` is a [GitHub CLI](https://github.com/cli/cli) extension for listing projects and linking/unlinking projects from issues/PRs interactively.
+`gh project` is a [GitHub CLI](https://github.com/cli/cli) extension for listing projects and linking/unlinking projects to/from issues/PRs interactively.
 
 ## Installation
 
